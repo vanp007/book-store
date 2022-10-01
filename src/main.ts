@@ -6,7 +6,7 @@ import { version, author } from '../package.json';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
-console.log(process.env.TZ);
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
