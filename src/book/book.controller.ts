@@ -7,10 +7,11 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiProperty } from '@nestjs/swagger';
-import { CreateBookDTO } from './dto/create-book-dto';
+import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { CreateBookDTO } from './dto';
 import { BookService } from './service/book.service';
 
+@ApiTags('BOOK DATA')
 @Controller('book')
 export class BookController {
   constructor(private booksService: BookService) {}
@@ -28,14 +29,15 @@ export class BookController {
   }
 
   @Post('add-book')
+  @ApiProperty()
   async addBook(@Body() createBookDTO: CreateBookDTO) {
     const book = await this.booksService.addBook(createBookDTO);
     return book;
   }
 
   @Delete('delete-book')
-  async deleteBook(@Query() query) {
-    const books = await this.booksService.deleteBook(query.bookID);
+  async deleteBook(@Query('bookID') bookID: number) {
+    const books = await this.booksService.deleteBook(bookID);
     return books;
   }
 }

@@ -1,42 +1,67 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { BOOKS } from '../../mocks/books.mocks';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateBookDTO } from '../dto';
+import { Books } from '../entity';
 
 @Injectable()
 export class BookService {
-  books = BOOKS;
+  constructor(
+    @InjectRepository(Books) private bookRepository: Repository<Books>,
+  ) {}
 
-  getBooks(): Promise<any> {
-    return new Promise((resolve) => {
-      resolve(this.books);
-    });
+  //fetching all books
+  getBooks() {
+    return this.bookRepository.find();
   }
-  getBook(bookID: any): Promise<any> {
-    const id = Number(bookID);
-    return new Promise((resolve) => {
-      const book = this.books.find((book) => book.id === id);
-      if (!book) {
-        throw new HttpException('Book does not exist!', 404);
+
+  //fetching book by id
+  async getBook(bookID: number) {
+    const book = await this.bookRepository.findOne({
+      where: { id: bookID },
+    });
+    if (!book) {
+      throw new HttpException('Book does not exist!', 404);
+    }
+    return book;
+  }
+
+  //add a book
+  async addBook(bookDetails: CreateBookDTO): Promise<CreateBookDTO> {
+    try {
+      const findBookAndAuthor = await this.bookRepository.find({
+        where: { author: bookDetails.author, title: bookDetails.title },
+      });
+
+      //check if author and book exist
+      if (findBookAndAuthor.length > 0) {
+        console.log(findBookAndAuthor.length);
+        throw new HttpException('book and user already exist', 409);
+      } else {
+        const book = this.bookRepository.create({ ...bookDetails });
+        await this.bookRepository.save(book);
+
+        //saving book details
+        const registeredBook = {
+          title: book.title,
+          author: book.author,
+          description: book.description,
+          createdAt: book.createdAt,
+        };
+        return registeredBook;
       }
-      resolve(book);
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  addBook(book): Promise<any> {
-    return new Promise((resolve) => {
-      this.books.push(book);
-      resolve(this.books);
-    });
-  }
-
-  deleteBook(bookID): Promise<any> {
-    const id = Number(bookID);
-    return new Promise((resolve) => {
-      const index = this.books.findIndex((book) => book.id === id);
-      if (index === -1) {
-        throw new HttpException('Book does not exist!', 404);
-      }
-      this.books.splice(1, index);
-      resolve(this.books);
-    });
+  //delete book by id
+  async deleteBook(bookID: number) {
+    try {
+      const book = await this.bookRepository.delete({ id: bookID });
+      return book;
+    } catch (error) {
+      throw error;
+    }
   }
 }
