@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,10 +7,14 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { CreateBookDTO } from './dto';
 import { BookService } from './service/book.service';
+import { diskStorage } from 'multer';
 
 @ApiTags('BOOK DATA')
 @Controller('book')
@@ -39,5 +44,37 @@ export class BookController {
   async deleteBook(@Query('bookID') bookID: number) {
     const books = await this.booksService.deleteBook(bookID);
     return books;
+  }
+
+  //uploading file
+  @ApiProperty()
+  @Post('file')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './book_cover',
+        filename: (req, file, callback) => {
+          const name = file.originalname.split('.')[0];
+          const fileExtension = file.originalname.split('.')[1];
+          const newFileName =
+            name.split(' ').join('_') + '_' + Date.now() + '.' + fileExtension;
+
+          callback(null, newFileName);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return callback(null, false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  handleupload(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is not image!!!');
+    } else {
+      return file.filename;
+    }
   }
 }

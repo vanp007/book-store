@@ -14,6 +14,9 @@ export class Books {
   @Column({ type: 'varchar' })
   author: string;
 
+  @Column({ type: 'varchar' })
+  bookType: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }
