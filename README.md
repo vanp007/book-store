@@ -1,7 +1,7 @@
 # book-store
 
-# after clone
+--after clone
 
-# creat .env.stage.dev based on .env.stage.example
+--creat .env.stage.dev based on .env.stage.example
 
-# run: npm install
+--run: npm install
