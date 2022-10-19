@@ -46,6 +46,7 @@ export class BookService {
           title: book.title,
           author: book.author,
           description: book.description,
+          bookType: book.bookType,
           createdAt: book.createdAt,
         };
         return registeredBook;

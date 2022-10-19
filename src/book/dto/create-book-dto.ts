@@ -5,15 +5,20 @@ export class CreateBookDTO {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly title: string;
+  title: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly description: string;
+  description: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly author: string;
+  author: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  bookType: string;
 }
